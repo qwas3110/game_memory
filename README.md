@@ -11,5 +11,7 @@
 
 首先，请打开`js/app.js`并开始构建应用程序的功能。
 
+![失败画面](https://github.com/qwas3110/game_memory/blob/master/img/fail.png)
 
-
+![成功画面](https://github.com/qwas3110/game_memory/blob/master/img/success.png)
+![结束画面](https://github.com/qwas3110/game_memory/blob/master/img/finished.png)
