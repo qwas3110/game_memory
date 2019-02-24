@@ -1,22 +1,14 @@
 // 卡牌数据
 const cardModel = {
     cardArray: [
-        'fa-anchor',
-        'fa-anchor',
-        'fa-bicycle',
-        'fa-bicycle',
-        'fa-bolt',
-        'fa-bolt',
-        'fa-bomb',
-        'fa-bomb',
-        'fa-cube',
-        'fa-cube',
-        'fa-diamond',
-        'fa-diamond',
-        'fa-leaf',
-        'fa-leaf',
-        'fa-paper-plane-o',
-        'fa-paper-plane-o'
+        'fa-anchor', 'fa-anchor',
+        'fa-bicycle', 'fa-bicycle',
+        'fa-bolt', 'fa-bolt',
+        'fa-bomb', 'fa-bomb',
+        'fa-cube', 'fa-cube',
+        'fa-diamond', 'fa-diamond',
+        'fa-leaf', 'fa-leaf',
+        'fa-paper-plane-o', 'fa-paper-plane-o'
     ],
     openCard: [],
     clickCount: 0,
@@ -28,7 +20,6 @@ const cardModel = {
     match: 0,
     move: 0
 };
-
 // 章鱼
 const gameControl = {
     init() {
@@ -168,8 +159,7 @@ const cardScoringView = {
             })
     }
 };
-
-// 开牌界面
+// 卡牌界面
 const cardView = {
     init() {
         this.view = document.querySelector(".deck");
