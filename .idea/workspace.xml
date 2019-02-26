@@ -85,9 +85,9 @@
     <other-services-enabled>true</other-services-enabled>
     <auto-save>true</auto-save>
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="x" value="681" />
-    <option name="width" value="759" />
+  <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
+    <option name="x" value="760" />
+    <option name="width" value="680" />
     <option name="height" value="900" />
   </component>
   <component name="ProjectView">
