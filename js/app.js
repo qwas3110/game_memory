@@ -1,32 +1,38 @@
-// 卡牌数据
 const cardModel = {
     cardArray: [
-        'fa-anchor', 'fa-anchor',
-        'fa-bicycle', 'fa-bicycle',
-        'fa-bolt', 'fa-bolt',
-        'fa-bomb', 'fa-bomb',
-        'fa-cube', 'fa-cube',
-        'fa-diamond', 'fa-diamond',
-        'fa-leaf', 'fa-leaf',
-        'fa-paper-plane-o', 'fa-paper-plane-o'
+        'fa-anchor',
+        'fa-anchor',
+        'fa-bicycle',
+        'fa-bicycle',
+        'fa-bolt',
+        'fa-bolt',
+        'fa-bomb',
+        'fa-bomb',
+        'fa-cube',
+        'fa-cube',
+        'fa-diamond',
+        'fa-diamond',
+        'fa-leaf',
+        'fa-leaf',
+        'fa-paper-plane-o',
+        'fa-paper-plane-o'
     ],
+    click: 0,
+    wait: null,
+    now: null,
     openCard: [],
-    clickCount: 0,
-    card1: null,
-    card2: null,
-    name1: null,
-    name2: null,
-    timer: null,
-    match: 0,
-    move: 0
+    timer:null,
+    move: 0,
+    match: 0
 };
-// 章鱼
-const gameControl = {
+
+
+const control = {
     init() {
         cardView.init();
-        cardScoringView.init();
+        scoreBoardView.init();
     },
-    // 洗牌
+    // 洗牌函数来自于 http://stackoverflow.com/a/2450976
     shuffle(array) {
         var currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -39,155 +45,158 @@ const gameControl = {
         }
         return array;
     },
-    // 初始化卡牌到界面
-    initCard(cardArray, view) {
-        for (let card of cardArray) {
+    // 生成li
+    showCardLi(card) {
+        const that = this;
+        let cards = that.shuffle(card);
+        const result = document.createDocumentFragment();
+        for (let icon of cards) {
             let li = document.createElement('li');
-            li.innerHTML = `<i class="fa ${card}"></i>`;
             li.className = "card";
-            view.appendChild(li);
+            li.innerHTML = `<i class="fa ${icon}"></i>`;
+            result.appendChild(li);
         }
+        return result;
     },
-    // 显示开牌 状态 open
-    showCard(card) {
-        card.className === 'card' ? card.className = "card show open" : false;
+    // 显示卡牌
+    clickCard(card) {
+        card.classList.add('show', 'open');
     },
-    // 点击的开牌加入数组中做检查
-    addArray(card) {
-        cardModel.openCard[(cardModel.clickCount + 1) % 2] = card.childNodes[0].className;
+    // 加入open 数组
+    pushOpenArray(card) {
+        // (card.classList.contains('open')) && (cardModel.openCard.push(card));
+        cardModel.openCard[(cardModel.click + 1) % 2] = card.childNodes[0].className;
     },
-    // 当数组中有2个清空数组
-    clearOpenCard() {
+    // 清除数组数据
+    clearOpenArray() {
         (cardModel.openCard.length === 2) && (cardModel.openCard = []);
     },
-    // 测试卡牌是否匹配 匹配则加入类 match， 不匹配则加入类dismatch
-    testCard(card,) {
-        const open = cardModel.openCard;
-        if (open.length === 2 && card.nodeName === 'LI') {
-            cardModel.card2 = card;
-            cardModel.name2 = card.childNodes[0].className;
-            if (cardModel.name1 === cardModel.name2) {
-                cardModel.card1.className = "card show match";
-                cardModel.card2.className = "card show match";
+    // 匹配卡牌
+    testMatchCard(card, array) {
+        let className1, className2;
+        if (array.length === 2 && card.localName === "li") {
+            cardModel.now = card;
+            if (array[0] === array[1]) {
+                cardModel.now.className = "card show match";
+                cardModel.wait.className = "card show match";
                 cardModel.match++;
             } else {
-                cardModel.card1.className = "card show dismatch";
-                cardModel.card2.className = "card show dismatch";
-                if (card.className.includes("dismatch")) {
-                    let out1 = cardModel.card1;
-                    let out2 = cardModel.card2;
-                    setTimeout(function () {
+                cardModel.now.className = "card show dismatch";
+                cardModel.wait.className = "card show dismatch";
+                if (card.className.includes('dismatch')) {
+                    let out1 = cardModel.now;
+                    let out2 = cardModel.wait;
+                    setTimeout(() => {
                         out1.className = "card";
                         out2.className = "card";
-                    }, 1000)
+                    }, 500)
                 }
             }
-        } else if (open.length === 1 && card.nodeName === 'LI') {
-            cardModel.card1 = card;
-            cardModel.name1 = card.childNodes[0].className;
+        } else if (array.length === 1 && card.localName === "li") {
+            cardModel.wait = card;
         }
     },
-    // 计时开始
-    starTime(time, num) {
-        if (cardModel.clickCount === num) {
-            cardModel.timer = setInterval(function () {
-                const view = document.querySelectorAll('.seconds');
-                view[0].innerText++;
-                view[1].innerText++;
-            }, 1000)
-        }
+    // 步数
+    addMoves() {
+        const move = document.getElementsByClassName('moves');
+        move[0].textContent++;
+        move[1].textContent++;
+        cardModel.move++;
+
     },
-    // 计算步数 点2下为1步，以此类推
-    moveStep(move) {
-        move.innerText++;
+    // 开始计时
+    starTimer() {
+        const time = document.getElementsByClassName('seconds');
+        cardModel.timer = setInterval(() => {
+            time[0].textContent++;
+            time[1].textContent++;
+        },1000)
     },
-    // 删除星星 14扣1星， 20步在扣一星，默认最低剩下一颗星
-    removeStar(moves,start) {
-        if (moves.innerText === '14') {
-            start.removeChild(start.childNodes[0])
-        } else if (moves.innerText === "20"){
-            start.removeChild(start.childNodes[0])
-        }
+    // 加减星星
+    removeStar() {
+        const starts = document.getElementsByClassName('stars');
+        starts[0].removeChild(starts[0].childNodes[0]);
+        starts[1].removeChild(starts[1].childNodes[0])
     },
-    // 重置游戏
-    resetGame(reset) {
-        reset.onclick = () => location.reload();
-    },
-    // 游戏结束界面
-    gameCompletion() {
-        setTimeout(function () {
-            const result = document.querySelector(".result");
-            result.style.top = "30%";
-        }, 500)
+    gameComplete() {
+        const result = document.getElementsByClassName('result');
+        setTimeout(() => {
+            result[0].style.top = "30%";
+        },500)
     }
+
+
+
 };
 
-// 计分板界面
-const cardScoringView = {
-    init() {
-        this.time = cardModel.timer;
-        this.move = cardModel.move;
-        this.restart = document.querySelector('.restart');
-        this.playAgain = document.querySelector(".play-again");
-        this.render();
-        // 重置游戏
-        gameControl.resetGame(this.restart);
-        gameControl.resetGame(this.playAgain);
-    },
-    render() {
-        const moves = document.querySelectorAll('.moves');
-        const stars = document.querySelectorAll('.stars');
-        document
-            .querySelector(".deck")
-            .addEventListener("click", function () {
-                //开始计算时间
-                gameControl.starTime(this.time, 1);
-                // 2下为1步。以此类推
-                if (cardModel.clickCount % 2 === 0 ) {
-                    gameControl.moveStep(moves[0]);
-                    gameControl.moveStep(moves[1]);
-                    this.move++;
-                }
-                // 根据规则扣除星星
-                gameControl.removeStar(moves[0],stars[0]);
-                gameControl.removeStar(moves[1],stars[1]);
-                // 当全部匹配完之后
-                if (cardModel.match === cardModel.cardArray.length / 2) {
-                    clearInterval(cardModel.timer);
-                    gameControl.gameCompletion();
-                }
-            })
-    }
-};
-// 卡牌界面
+
 const cardView = {
     init() {
-        this.view = document.querySelector(".deck");
-        this.cardArray = gameControl.shuffle(cardModel.cardArray);
+        this.view = document.getElementsByClassName('deck');
         this.render();
     },
     render() {
-        // 初始化卡牌
-        gameControl.initCard(this.cardArray, this.view);
+        // 将对象生成li数组
+        const allLi = control.showCardLi(cardModel.cardArray);
+        // 将卡牌数组写入页面
+        this.view[0].appendChild(allLi);
+
         document
             .querySelector('.deck')
-            .addEventListener('click', (e) => {
-                if (e.target.className === 'card') {
-                    console.log(e.target);
-                    const card = e.target;
-                    cardModel.clickCount++;
-                    // 显示卡牌
-                    gameControl.showCard(card);
-                    // 清空卡牌
-                    gameControl.clearOpenCard();
-                    // 将点击的卡牌加入 openCard数组中
-                    gameControl.addArray(card);
-                    // 检查卡牌是否匹配
-                    gameControl.testCard(card);
+            .addEventListener('click', function (e) {
+                const card = e.target;
+                if (card.localName === 'li' && card.className === "card") {
+                    // 计数
+                    cardModel.click++;
+                    // 点击显示卡片
+                    control.clickCard(card);
+                    // 清空open组
+                    control.clearOpenArray();
+                    // 加入open组
+                    control.pushOpenArray(card);
+                    // 匹配卡牌
+                    control.testMatchCard(card, cardModel.openCard);
                 }
             })
     }
 };
 
 
-gameControl.init();
+const scoreBoardView = {
+  init() {
+      this.restart = document.getElementsByClassName('restart');
+      this.playAgain = document.getElementsByClassName('play-again');
+
+      this.render();
+
+      this.restart[0].onclick = () => {location.reload()};
+      this.playAgain[0].onclick = () => {location.reload()};
+
+  },
+  render() {
+      document
+          .querySelector('.deck')
+          .addEventListener('click', function () {
+              // 开始时间
+              if (cardModel.click === 1) {
+                  control.starTimer();
+              }
+              // 计算步数
+              if (cardModel.click % 2 === 0) {
+                  control.addMoves();
+              }
+              // 根据步数扣除星星
+              (cardModel.move === 3) && (control.removeStar());
+              (cardModel.move === 5) && (control.removeStar());
+              // 全部匹配后
+              if (cardModel.match === 8) {
+                  clearInterval(cardModel.timer);
+                  control.gameComplete();
+              }
+          })
+
+  }
+};
+
+
+control.init();
