@@ -163,3 +163,7 @@ playAgain.onclick = function () {
         result.style.top = "-2000px";
     },1000)
 };
+
+
+
+
